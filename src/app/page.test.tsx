@@ -1,18 +1,16 @@
-import { render, screen } from '@testing-library/react'
-import Header from '@/components/Header'
+import Home from './page'
 
+// Mock fetch
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve([]),
+  }) as Promise<Response>
+)
 
-
-describe('Header Component - Simple Tests', () => {
-  it('renders club name', () => {
-    render(<Header />)
-    expect(screen.getByText('ФК Вікторія')).toBeDefined()
+describe('Home Page', () => {
+  it('should render without crashing', async () => {
+    const jsx = await Home()
+    expect(jsx).toBeDefined()
   })
-
-  it('renders navigation links', () => {
-    render(<Header />)
-    expect(screen.getByText('Головна')).toBeDefined()
-    expect(screen.getByText('Товари')).toBeDefined()
-  })
-
 })

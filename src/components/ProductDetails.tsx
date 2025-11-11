@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Product } from '@/types/product'
 import Image from 'next/image'
+import { useCart } from '@/context/CartContext'
 
 interface ProductDetailsProps {
   product: Product
@@ -13,6 +14,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || '')
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
+  const { addItem } = useCart()
 
   const hasDiscount = product.originalPrice && product.originalPrice > product.price
   const hasImage = product.image && product.image.trim() !== ''
@@ -25,13 +27,15 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   ]
 
   const handleAddToCart = () => {
-    // Тут буде логіка додавання в кошик
-    console.log('Додано в кошик:', {
-      product,
+    addItem({
+      ...product,
+      quantity,
       selectedSize,
-      selectedColor,
-      quantity
+      selectedColor
     })
+    
+    // Можна додати сповіщення про успішне додавання
+    alert('Товар додано до кошика!')
   }
 
   return (

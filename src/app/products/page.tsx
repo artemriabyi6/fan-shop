@@ -1,9 +1,26 @@
-import { products } from '@/data/products'
 import ProductCard from '@/components/ProductCard'
+import { Product } from '@/types/product'
 
-export default function ProductsPage() {
+async function getProducts(): Promise<Product[]> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products`, {
+      cache: 'no-store'
+    })
+    
+    if (!res.ok) {
+      throw new Error('Failed to fetch products')
+    }
+    
+    return res.json()
+  } catch (error) {
+    console.error('Error fetching products:', error)
+    return []
+  }
+}
+
+export default async function ProductsPage() {
+  const products = await getProducts()
   const featuredProducts = products.filter(product => product.featured)
-  const allProducts = products
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -33,11 +50,17 @@ export default function ProductsPage() {
         {/* Всі товари */}
         <section>
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Всі товари</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {allProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {products.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Товари не знайдено</p>
+            </div>
+          )}
         </section>
       </div>
     </div>
