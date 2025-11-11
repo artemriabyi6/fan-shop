@@ -19,7 +19,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-square bg-gray-100">
           {hasImage ? (
-            // Показуємо реальне зображення з правильним позиціонуванням
+            
             <div className="relative w-full h-full">
               <Image
                 src={product.image}
