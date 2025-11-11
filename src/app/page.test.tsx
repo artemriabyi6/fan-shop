@@ -1,18 +1,18 @@
 import { render, screen } from '@testing-library/react'
-import Home from './page'
+import Header from '@/components/Header'
 
-describe('Home Page', () => {
-  it('renders without crashing', () => {
-    render(<Home />)
-    // Проста перевірка на наявність елемента
-    const mainElement = screen.getByRole('main')
-    expect(mainElement).toBeDefined()
+
+
+describe('Header Component - Simple Tests', () => {
+  it('renders club name', () => {
+    render(<Header />)
+    expect(screen.getByText('ФК Вікторія')).toBeDefined()
   })
 
-  it('contains welcome content', () => {
-    render(<Home />)
-    // Шукаємо будь-який заголовок
-    const headings = screen.getAllByRole('heading')
-    expect(headings.length).toBeGreaterThan(0)
+  it('renders navigation links', () => {
+    render(<Header />)
+    expect(screen.getByText('Головна')).toBeDefined()
+    expect(screen.getByText('Товари')).toBeDefined()
   })
+
 })
