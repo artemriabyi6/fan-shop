@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import ProductDetails from '@/components/ProductDetails'
+import { Product } from '@/types/product'
 
 async function getProduct(slug: string) {
   try {
@@ -55,7 +56,7 @@ export default async function ProductPage(props: ProductPageProps) {
 export async function generateStaticParams() {
   const products = await getProducts()
   
-  return products.map((product: any) => ({
+  return products.map((product: Product) => ({
     slug: product.slug,
   }))
 }

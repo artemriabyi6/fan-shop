@@ -1,16 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+interface OrderItem {
+  id: string
+  productId: string
+  quantity: number
+  selectedSize?: string
+  selectedColor?: string
+  price: number
+}
+
+interface OrderRequest {
+  items: OrderItem[]
+  total: number
+  customerInfo: {
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    address: string
+    city: string
+    postalCode: string
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { items, total, customerInfo } = await request.json()
+    const { items, total }: OrderRequest = await request.json()
 
     // Створюємо замовлення в базі даних
     const order = await prisma.order.create({
       data: {
         total,
         items: {
-          create: items.map((item: any) => ({
+          create: items.map((item) => ({
             productId: item.id,
             quantity: item.quantity,
             selectedSize: item.selectedSize,
