@@ -1,0 +1,28 @@
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/myapp
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+    command: npm run dev
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"  # Новий унікальний порт
+    volumes:
+      - fan_shop_postgres_data:/var/lib/postgresql/data  # Нова унікальна назва
+
+volumes:
+  fan_shop_postgres_data:  # Нова унікальна назва

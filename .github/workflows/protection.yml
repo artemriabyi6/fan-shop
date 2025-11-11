@@ -1,0 +1,13 @@
+name: Branch Protection
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  protect:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Branch Protection Rule
+      run: |
+        echo "Branch protection is configured via GitHub repository settings"
