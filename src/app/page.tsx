@@ -4,6 +4,8 @@ import { Product } from '@/types/product'
 import Image from 'next/image'
 
 async function getFeaturedProducts(): Promise<Product[]> {
+
+
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const res = await fetch(`${baseUrl}/api/products`, {
