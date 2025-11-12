@@ -3,14 +3,27 @@
 import { Product } from '@/types/product'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useCart } from '@/context/CartContext'
 
 interface ProductCardProps {
   product: Product
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { addItem } = useCart()
   const hasDiscount = product.originalPrice && product.originalPrice > product.price
   const hasImage = product.image && product.image.trim() !== ''
+
+  const handleAddToCart = () => {
+    addItem({
+      ...product,
+      quantity: 1,
+      selectedSize: product.sizes?.[0] || '',
+      selectedColor: product.colors?.[0] || ''
+    })
+  }
+
+  const imageSrc = product.image || '/images/placeholder.jpg'
 
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 ${
@@ -19,10 +32,10 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-square bg-gray-100">
           {hasImage ? (
-            
+            // Показуємо реальне зображення з правильним позиціонуванням
             <div className="relative w-full h-full">
               <Image
-                src={product.image}
+                src={imageSrc}
                 alt={product.name}
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-300"
@@ -31,7 +44,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           ) : (
             // Показуємо заглушку тільки якщо немає зображення
-            <div className={`w-full h-full flex items-center justify-center bg-linear-to-br from-blue-50 to-gray-100 ${
+            <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 ${
               !product.inStock ? 'filter blur-sm' : ''
             }`}>
               <div className="text-center">
@@ -98,6 +111,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <button
+          onClick={handleAddToCart}
           className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
             product.inStock
               ? 'bg-blue-600 text-white hover:bg-blue-700'

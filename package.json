@@ -14,7 +14,11 @@
     "docker:run": "docker run -p 3000:3000 my-next-app",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:reset": "npx prisma db push --force-reset && npm run db:seed",
+    "postinstall": "prisma generate"
+    
   },
   "dependencies": {
     "@prisma/client": "6.19.0",
@@ -39,6 +43,7 @@
     "jest-environment-jsdom": "30.2.0",
     "tailwindcss": "^4",
     "ts-node": "10.9.2",
+    "tsx": "4.20.6",
     "typescript": "^5"
   }
 }
