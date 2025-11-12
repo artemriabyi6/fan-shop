@@ -4,14 +4,9 @@ import { Product } from '@/types/product'
 import Image from 'next/image'
 
 async function getFeaturedProducts(): Promise<Product[]> {
-
-
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/products`, {
-      next: { 
-        revalidate: 3600 // Кешувати на 1 годину замість 0
-      }
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products`, {
+      cache: 'no-store' // Не кешувати, щоб бачити актуальні дані
     })
     
     if (!res.ok) {
@@ -26,40 +21,11 @@ async function getFeaturedProducts(): Promise<Product[]> {
   }
 }
 
-const staticFeaturedProducts = [
-  {
-    id: '1',
-    name: 'Домашня форма сезону 2024',
-    description: 'Офіційна домашня форма ФК Вікторія. Синя з білими акцентами.',
-    price: 1499,
-    slug: 'home-jersey-2024'
-  },
-  {
-    id: '2', 
-    name: 'Гостьова форма сезону 2024',
-    description: 'Офіційна гостьова форма ФК Вікторія. Біла з синіми акцентами.',
-    price: 1499,
-    slug: 'away-jersey-2024'
-  },
-  {
-    id: '3',
-    name: 'Футбольний м\'яч',
-    description: 'Офіційний м\'яч для тренувань та матчів.',
-    price: 899,
-    slug: 'team-ball'
-  }
-]
-
 export default async function Home() {
-  let featuredProducts: Product[] = []
-  
-  try {
-    featuredProducts = await getFeaturedProducts()
-  } catch (error) {
-    console.log('Using static featured products due to fetch error')
-    // Використовуємо статичні дані як запасний варіант
-    featuredProducts = staticFeaturedProducts as Product[]
-  }
+  const featuredProducts = await getFeaturedProducts()
+
+  console.log('Featured products count:', featuredProducts.length)
+  console.log('Featured products:', featuredProducts)
 
   return (
     <div className="bg-linear-to-br from-blue-50 to-white min-h-screen">
@@ -131,36 +97,49 @@ export default async function Home() {
       </section>
 
       {/* Featured Products */}
-      {featuredProducts.length > 0 && (
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Популярні товари
-              </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Найпопулярніша продукція серед наших вболівальників
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProducts.map((product: Product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <div className="text-center mt-12">
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Популярні товари
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Найпопулярніша продукція серед наших вболівальників
+            </p>
+          </div>
+
+          {featuredProducts.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredProducts.map((product: Product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+              <div className="text-center mt-12">
+                <Link
+                  href="/products"
+                  className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  Дивитися всі товари
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg mb-4">Наразі немає популярних товарів</p>
               <Link
                 href="/products"
                 className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
-                Дивитися всі товари
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
+                Перейти до всіх товарів
               </Link>
             </div>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </section>
 
       {/* CTA секція */}
       <section className="py-20 bg-blue-600 text-white">
