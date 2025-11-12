@@ -2,7 +2,22 @@ import { notFound } from 'next/navigation'
 import ProductDetails from '@/components/ProductDetails'
 import { prisma } from '@/lib/prisma'
 
+// Статичні продукти для generateStaticParams
+const staticProducts = [
+  { slug: 'home-jersey-2024' },
+  { slug: 'away-jersey-2024' },
+  { slug: 'team-scarf' },
+  { slug: 'team-cap' },
+  { slug: 'water-bottle' },
+  { slug: 'team-ball' }
+]
+
 async function getProduct(slug: string) {
+  // Під час збірки повертаємо null, щоб уникнути помилок
+  if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
+    return null
+  }
+  
   try {
     const product = await prisma.product.findUnique({
       where: { slug }
@@ -15,6 +30,11 @@ async function getProduct(slug: string) {
 }
 
 async function getProducts() {
+  // Під час збірки повертаємо статичні продукти
+  if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
+    return staticProducts.map(p => ({ slug: p.slug }))
+  }
+  
   try {
     const products = await prisma.product.findMany({
       select: { slug: true }
@@ -22,7 +42,7 @@ async function getProducts() {
     return products
   } catch (error) {
     console.error('Error fetching products:', error)
-    return []
+    return staticProducts.map(p => ({ slug: p.slug }))
   }
 }
 
@@ -45,7 +65,6 @@ export default async function ProductPage(props: ProductPageProps) {
 
 export async function generateStaticParams() {
   const products = await getProducts()
-  
   return products.map((product) => ({
     slug: product.slug,
   }))
