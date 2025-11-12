@@ -17,8 +17,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed",
-    "postinstall": "prisma generate",
-     "vercel-build": "prisma generate && prisma db push --skip-generate && npm run db:seed && next build"
+    "postinstall": "prisma generate"
+    
   },
   "dependencies": {
     "@prisma/client": "6.19.0",
