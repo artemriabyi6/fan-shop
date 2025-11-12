@@ -3,8 +3,8 @@ import ProductCard from '@/components/ProductCard'
 import { Product } from '@/types/product'
 import Image from 'next/image'
 
-async function getFeaturedProducts():Promise<Product[]> {
-   try {
+async function getFeaturedProducts(): Promise<Product[]> {
+  try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const res = await fetch(`${baseUrl}/api/products`, {
       next: { 
@@ -24,41 +24,72 @@ async function getFeaturedProducts():Promise<Product[]> {
   }
 }
 
+const staticFeaturedProducts = [
+  {
+    id: '1',
+    name: 'Домашня форма сезону 2024',
+    description: 'Офіційна домашня форма ФК Вікторія. Синя з білими акцентами.',
+    price: 1499,
+    slug: 'home-jersey-2024'
+  },
+  {
+    id: '2', 
+    name: 'Гостьова форма сезону 2024',
+    description: 'Офіційна гостьова форма ФК Вікторія. Біла з синіми акцентами.',
+    price: 1499,
+    slug: 'away-jersey-2024'
+  },
+  {
+    id: '3',
+    name: 'Футбольний м\'яч',
+    description: 'Офіційний м\'яч для тренувань та матчів.',
+    price: 899,
+    slug: 'team-ball'
+  }
+]
+
 export default async function Home() {
-  const featuredProducts = await getFeaturedProducts()
+  let featuredProducts: Product[] = []
+  
+  try {
+    featuredProducts = await getFeaturedProducts()
+  } catch (error) {
+    console.log('Using static featured products due to fetch error')
+    // Використовуємо статичні дані як запасний варіант
+    featuredProducts = staticFeaturedProducts as Product[]
+  }
 
   return (
     <div className="bg-linear-to-br from-blue-50 to-white min-h-screen">
       {/* Hero секція */}
-     <section className="py-20 bg-linear-to-r from-blue-600 to-blue-800 text-white">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    {/* Емблема клубу */}
-    <div className=" flex items-center justify-center mx-auto mb-6 ">
-      <Image 
-        src="/images/logo.png" 
-        alt="ФК Вікторія" 
-        className="w-35 h-35 object-contain"
-        width={112}
-        height={112}
-      />
-    </div>
-    <h1 className="text-5xl md:text-6xl font-bold mb-6">
-      ФК <span className="">Вікторія</span>
-    </h1>
-    <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-      Офіційний фан-шоп. Отримайте автентичну продукцію вашого улюбленого клубу!
-    </p>
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-      <Link 
-        href="/products"
-        className="border-2 border-white text-white- px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors shadow-lg"
-      >
-        Перейти до товарів
-      </Link>
-      
-    </div>
-  </div>
-</section>
+      <section className="py-20 bg-linear-to-r from-blue-600 to-blue-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Емблема клубу */}
+          <div className="flex items-center justify-center mx-auto mb-6">
+            <Image 
+              src="/images/logo.png" 
+              alt="ФК Вікторія" 
+              className="w-35 h-35 object-contain"
+              width={112}
+              height={112}
+            />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            ФК <span className="">Вікторія</span>
+          </h1>
+          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+            Офіційний фан-шоп. Отримайте автентичну продукцію вашого улюбленого клубу!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href="/products"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors shadow-lg"
+            >
+              Перейти до товарів
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Переваги */}
       <section className="py-16 bg-white">
@@ -128,8 +159,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      
 
       {/* CTA секція */}
       <section className="py-20 bg-blue-600 text-white">
