@@ -23,6 +23,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     })
   }
 
+  const imageSrc = product.image || '/images/placeholder.jpg'
+
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 ${
       !product.inStock ? 'opacity-70' : ''
@@ -33,7 +35,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             // Показуємо реальне зображення з правильним позиціонуванням
             <div className="relative w-full h-full">
               <Image
-                src={product.image}
+                src={imageSrc}
                 alt={product.name}
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-300"

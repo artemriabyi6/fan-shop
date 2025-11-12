@@ -4,9 +4,12 @@ import { Product } from '@/types/product'
 import Image from 'next/image'
 
 async function getFeaturedProducts():Promise<Product[]> {
-  try {
-    const res = await fetch('/api/products', {
-      cache: 'no-store'
+   try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const res = await fetch(`${baseUrl}/api/products`, {
+      next: { 
+        revalidate: 3600 // Кешувати на 1 годину замість 0
+      }
     })
     
     if (!res.ok) {

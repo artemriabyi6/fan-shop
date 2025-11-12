@@ -38,6 +38,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     alert('Товар додано до кошика!')
   }
 
+  const srcImage = productImages[selectedImage] || '/images/placeholder.jpg'
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +51,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 {hasImage ? (
                   <Image
-                    src={productImages[selectedImage]}
+                    src={srcImage}
                     alt={product.name}
                     width={600}
                     height={600}
@@ -69,25 +71,28 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
               {/* Мініатюри */}
               {hasImage && productImages.length > 1 && (
-                <div className="grid grid-cols-3 gap-4">
-                  {productImages.map((image, index) => (
-                    <button
-                      key={index}
-                      className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImage === index ? 'border-blue-600' : 'border-transparent'
-                      }`}
-                      onClick={() => setSelectedImage(index)}
-                    >
-                      <Image
-                        src={image}
-                        alt={`${product.name} - зображення ${index + 1}`}
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
+                  <div className="grid grid-cols-3 gap-4">
+    {productImages
+      .filter((image): image is string => image !== null) // Фільтруємо null
+      .map((image, index) => (
+        <button
+          key={index}
+          className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
+            selectedImage === index ? 'border-blue-600' : 'border-transparent'
+          }`}
+          onClick={() => setSelectedImage(index)}
+        >
+          <Image
+            src={image}
+            alt={`${product.name} - зображення ${index + 1}`}
+            width={150}
+            height={150}
+            className="w-full h-full object-cover"
+          />
+        </button>
+      ))
+    }
+  </div>
               )}
             </div>
 
