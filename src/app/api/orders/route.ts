@@ -1,47 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { CreateOrderRequest, OrderItemInput } from '@/types/product'
 
-interface OrderItem {
-  id: string
-  productId: string
-  quantity: number
-  selectedSize?: string
-  selectedColor?: string
-  price: number
-}
-
-interface OrderRequest {
-  items: OrderItem[]
-  total: number
-  customerInfo: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    address: string
-    city: string
-    postalCode: string
-  }
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { items, total }: OrderRequest = await request.json()
+    const { items, total, customerInfo }: CreateOrderRequest = await request.json()
 
-    // Створюємо замовлення в базі даних
+    console.log('Received order data:', { items, total, customerInfo })
+
+    // Валідація даних
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        { error: 'Немає товарів у замовленні' },
+        { status: 400 }
+      )
+    }
+
+    if (!total || total <= 0) {
+      return NextResponse.json(
+        { error: 'Некоректна сума замовлення' },
+        { status: 400 }
+      )
+    }
+
+    // Створюємо замовлення тільки з доступними полями
+    const orderData = {
+      total: parseFloat(total.toString()),
+      status: 'PENDING' as const,
+      items: {
+        create: items.map((item: OrderItemInput) => ({
+          productId: item.id,
+          quantity: parseInt(item.quantity.toString()),
+          price: parseFloat(item.price.toString()),
+          selectedSize: item.selectedSize,
+          selectedColor: item.selectedColor
+        }))
+      }
+    }
+
+    console.log('Creating order with data:', orderData)
+
     const order = await prisma.order.create({
-      data: {
-        total,
-        items: {
-          create: items.map((item) => ({
-            productId: item.id,
-            quantity: item.quantity,
-            selectedSize: item.selectedSize,
-            selectedColor: item.selectedColor,
-            price: item.price
-          }))
-        }
-      },
+      data: orderData,
       include: {
         items: {
           include: {
@@ -50,43 +50,24 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    console.log('Order created successfully:', order)
 
     return NextResponse.json({ 
       success: true, 
-      orderId: order.id,
       order 
     })
-  } catch (error) {
-    console.error('Order creation error:', error)
+  } catch (error: unknown) {
+    console.error('Order creation error details:', error)
+    
+    let errorMessage = 'Помилка при створенні замовлення'
+    if (error instanceof Error) {
+      errorMessage = `Помилка при створенні замовлення: ${error.message}`
+    }
+    
     return NextResponse.json(
-      { success: false, error: 'Помилка при створенні замовлення' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
 }
-
-export async function GET() {
-  try {
-    const orders = await prisma.order.findMany({
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
-
-    return NextResponse.json(orders)
-  } catch (error) {
-    console.error('Orders fetch error:', error)
-    return NextResponse.json(
-      { error: 'Помилка при отриманні замовлень' },
-      { status: 500 }
-    )
-  }
-}
-

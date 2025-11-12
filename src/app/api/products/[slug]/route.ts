@@ -3,11 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    // Очікуємо params
-    const { slug } = await params
+    const { slug } = params
     
     console.log('Fetching product with slug:', slug)
 

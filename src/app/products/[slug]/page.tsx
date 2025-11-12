@@ -1,18 +1,13 @@
 import { notFound } from 'next/navigation'
 import ProductDetails from '@/components/ProductDetails'
-import { Product } from '@/types/product'
+import { prisma } from '@/lib/prisma'
 
 async function getProduct(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products/${slug}`, {
-      cache: 'no-store'
+    const product = await prisma.product.findUnique({
+      where: { slug }
     })
-    
-    if (!res.ok) {
-      return null
-    }
-    
-    return res.json()
+    return product
   } catch (error) {
     console.error('Error fetching product:', error)
     return null
@@ -21,15 +16,10 @@ async function getProduct(slug: string) {
 
 async function getProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products`, {
-      cache: 'no-store'
+    const products = await prisma.product.findMany({
+      select: { slug: true }
     })
-    
-    if (!res.ok) {
-      return []
-    }
-    
-    return res.json()
+    return products
   } catch (error) {
     console.error('Error fetching products:', error)
     return []
@@ -56,7 +46,7 @@ export default async function ProductPage(props: ProductPageProps) {
 export async function generateStaticParams() {
   const products = await getProducts()
   
-  return products.map((product: Product) => ({
+  return products.map((product) => ({
     slug: product.slug,
   }))
 }

@@ -1,19 +1,15 @@
 import ProductCard from '@/components/ProductCard'
 import { Product } from '@/types/product'
+import { prisma } from '@/lib/prisma'
 
 async function getProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products`, {
-      cache: 'no-store'
+    const products = await prisma.product.findMany({
+      where: { featured: true }
     })
-    
-    if (!res.ok) {
-      throw new Error('Failed to fetch products')
-    }
-    
-    return res.json()
+    return products
   } catch (error) {
-    console.error('Error fetching products:', error)
+    console.error('Error fetching featured products:', error)
     return []
   }
 }

@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 async function getFeaturedProducts():Promise<Product[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products`, {
+    const res = await fetch('/api/products', {
       cache: 'no-store'
     })
     
@@ -14,8 +14,7 @@ async function getFeaturedProducts():Promise<Product[]> {
     }
     
     const products = await res.json()
-    // Фільтруємо featured товари або беремо перші 3
-    return products.filter((product: Product) => product.featured).slice(0, 3) || products.slice(0, 3)
+    return products.filter((product: Product) => product.featured)
   } catch (error) {
     console.error('Error fetching featured products:', error)
     return []
