@@ -3,17 +3,6 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // Спочатку спробуємо створити таблиці, якщо їх немає
-    try {
-      await prisma.$executeRaw`SELECT 1 FROM "Product" LIMIT 1`
-    } catch (error) {
-      return NextResponse.json({ 
-        success: false,
-        error: 'Таблиці не існують',
-        instructions: 'Виконайте POST запит для створення таблиць та заповнення даних'
-      }, { status: 400 })
-    }
-
     const productCount = await prisma.product.count()
     
     return NextResponse.json({ 
@@ -33,30 +22,7 @@ export async function GET() {
 
 export async function POST() {
   try {
-    console.log('Starting database setup...')
-
-    // Спочатку створюємо таблиці
-    console.log('Pushing database schema...')
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Product" (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        price DECIMAL NOT NULL,
-        "originalPrice" DECIMAL,
-        description TEXT NOT NULL,
-        image TEXT,
-        category TEXT NOT NULL,
-        sizes TEXT[] NOT NULL,
-        colors TEXT[] NOT NULL,
-        "inStock" BOOLEAN NOT NULL DEFAULT true,
-        featured BOOLEAN NOT NULL DEFAULT false,
-        slug TEXT UNIQUE NOT NULL,
-        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      )
-    `
-
-    console.log('Database schema created successfully')
+    console.log('Starting database seed...')
 
     // Перевіряємо чи база пуста
     const productCount = await prisma.product.count()
@@ -72,45 +38,54 @@ export async function POST() {
             name: 'Домашня форма сезону 2024',
             price: 1499,
             originalPrice: 1799,
-            description: 'Офіційна домашня форма ФК Вікторія сезону 2024.',
+            description: 'Офіційна домашня форма ФК Вікторія. Синя з білими акцентами.',
             image: '/images/products/home-jersey.jpg',
             category: 'jersey',
-            sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+            sizes: ['S', 'M', 'L', 'XL'],
             colors: ['Синя', 'Біла'],
             inStock: true,
             featured: true,
-            slug: 'home-jersey-2024'
+            slug: 'home-jersey-2024',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
-            id: '2', 
+            id: '2',
             name: 'Гостьова форма сезону 2024',
             price: 1499,
-            description: 'Офіційна гостьова форма ФК Вікторія.',
+            originalPrice: null,
+            description: 'Офіційна гостьова форма ФК Вікторія. Біла з синіми акцентами.',
             image: '/images/products/away-jersey.jpg',
             category: 'jersey',
             sizes: ['S', 'M', 'L', 'XL'],
             colors: ['Біла', 'Синя'],
             inStock: true,
             featured: true,
-            slug: 'away-jersey-2024'
+            slug: 'away-jersey-2024',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: '3',
             name: 'Шарф ФК Вікторія',
             price: 399,
-            description: 'Теплий шарф з кольорами клубу.',
+            originalPrice: 499,
+            description: 'Теплий шарф з кольорами та символікою клубу.',
             image: '/images/products/scarf.jpg',
-            category: 'scarf',
+            category: 'accessories',
             sizes: ['Універсальний'],
-            colors: ['Синій-білий'],
+            colors: ['Синя', 'Біла', 'Червона'],
             inStock: true,
             featured: false,
-            slug: 'team-scarf'
+            slug: 'team-scarf',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: '4',
             name: 'Кепка ФК Вікторія',
             price: 299,
+            originalPrice: null,
             description: 'Стильна кепка з логотипом клубу.',
             image: '/images/products/cap.jpg',
             category: 'accessories',
@@ -118,12 +93,15 @@ export async function POST() {
             colors: ['Синя', 'Чорна'],
             inStock: true,
             featured: false,
-            slug: 'team-cap'
+            slug: 'team-cap',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: '5',
             name: 'Бутылка для води',
             price: 199,
+            originalPrice: null,
             description: 'Бутылка для води з логотипом клубу.',
             image: '/images/products/water-bottle.jpg',
             category: 'accessories',
@@ -131,21 +109,25 @@ export async function POST() {
             colors: ['Синя', 'Біла'],
             inStock: false,
             featured: false,
-            slug: 'water-bottle'
+            slug: 'water-bottle',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: '6',
-            name: 'М\'яч ФК Вікторія',
+            name: 'Мяч ФК Вікторія',
             price: 899,
             originalPrice: 999,
-            description: 'Офіційний м\'яч для тренувань та матчів.',
+            description: 'Офіційний мяч для тренувань та матчів.',
             image: '/images/products/ball.jpg',
             category: 'equipment',
             sizes: ['Розмір 5'],
             colors: ['Білий', 'Синій'],
             inStock: true,
             featured: true,
-            slug: 'team-ball'
+            slug: 'team-ball',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           }
         ]
       })
@@ -153,20 +135,34 @@ export async function POST() {
       const newCount = await prisma.product.count()
       return NextResponse.json({ 
         success: true, 
-        message: `Базу даних створено та заповнено! Додано ${newCount} товарів.` 
+        message: `Базу даних заповнено! Додано ${newCount} товарів.`,
+        products: [
+          'Домашня форма сезону 2024',
+          'Гостьова форма сезону 2024', 
+          'Шарф ФК Вікторія',
+          'Кепка ФК Вікторія',
+          'Бутылка для води',
+          'Мяч ФК Вікторія'
+        ]
       })
     } else {
+      // Якщо база вже має дані, можна їх оновити або залишити як є
+      const products = await prisma.product.findMany({
+        select: { name: true, featured: true }
+      })
+      
       return NextResponse.json({ 
         success: true, 
-        message: `База даних вже містить ${productCount} товарів.` 
+        message: `База даних вже містить ${productCount} товарів.`,
+        existingProducts: products
       })
     }
 
   } catch (error: any) {
-    console.error('Database setup error:', error)
+    console.error('Seed error:', error)
     return NextResponse.json({ 
       success: false, 
-      error: 'Помилка при налаштуванні бази даних',
+      error: 'Помилка при заповненні бази даних',
       details: error.message 
     }, { status: 500 })
   }

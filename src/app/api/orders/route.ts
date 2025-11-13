@@ -71,3 +71,26 @@ export async function POST(request: Request) {
     )
   }
 }
+
+export async function GET() {
+  try {
+    const orders = await prisma.order.findMany({
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    return NextResponse.json(orders)
+  } catch (error) {
+    console.error('Orders fetch error:', error)
+    return NextResponse.json(
+      { error: 'Помилка при отриманні замовлень' },
+      { status: 500 }
+    )
+  }
+}
