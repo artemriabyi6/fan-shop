@@ -1,29 +1,63 @@
-import { prisma } from '@/lib/prisma'
+'use client'
 
-async function getProducts() {
-  return await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' }
-  })
+import { useEffect, useState } from 'react'
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  inStock: boolean
+  featured: boolean
+  createdAt: string
 }
 
-async function getOrders() {
-  return await prisma.order.findMany({
-    include: {
-      items: {
-        include: {
-          product: true
-        }
+interface Order {
+  id: string
+  total: number
+  status: string
+  customerName?: string
+  items: Product[]
+  createdAt: string
+}
+
+export default function AdminPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [productsRes, ordersRes] = await Promise.all([
+          fetch('/api/products'),
+          fetch('/api/orders')
+        ])
+        
+        const productsData = await productsRes.json()
+        const ordersData = await ordersRes.json()
+        
+        setProducts(productsData)
+        setOrders(ordersData)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
       }
-    },
-    orderBy: { createdAt: 'desc' }
-  })
-}
+    }
 
-export default async function AdminPage() {
-  const [products, orders] = await Promise.all([
-    getProducts(),
-    getOrders()
-  ])
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Завантаження...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -67,7 +101,7 @@ export default async function AdminPage() {
               <tbody className="divide-y divide-gray-200">
                 {products.map((product) => (
                   <tr key={product.id}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{product.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{product.id.slice(0, 8)}...</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{product.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{product.price} грн</td>
                     <td className="px-6 py-4">
@@ -102,6 +136,7 @@ export default async function AdminPage() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="font-semibold">Замовлення #{order.id.slice(-6)}</p>
+                        <p className="text-sm text-gray-600">{order.customerName || 'Без імені'}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold">{order.total} грн</p>
@@ -115,7 +150,7 @@ export default async function AdminPage() {
                       </div>
                     </div>
                     <div className="text-sm text-gray-600">
-                      {order.items.length} товар(ів)
+                      {order.items?.length || 0} товар(ів)
                     </div>
                   </div>
                 ))}
