@@ -5,12 +5,14 @@ import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import CartDropdown from './CartDropdown'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const { state } = useCart()
+  const router = useRouter()
 
   // Ефект для відстеження скролу
   useEffect(() => {
@@ -48,6 +50,18 @@ export default function Header() {
       document.body.style.overflow = 'unset'
     }
   }, [isMenuOpen])
+
+  // Функція для обробки кліку по кошику
+  const handleCartClick = () => {
+    if (window.innerWidth < 1024) {
+      // На мобільних пристроях переходимо на сторінку кошика
+      router.push('/cart')
+    } else {
+      // На десктопі показуємо дропдаун
+      setIsCartOpen(!isCartOpen)
+    }
+    setIsMenuOpen(false)
+  }
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -105,25 +119,25 @@ export default function Header() {
             <div className="relative cart-dropdown">
               <button 
                 className="cart-button p-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:scale-110 relative"
-                onClick={() => {
-                  setIsCartOpen(!isCartOpen)
-                  setIsMenuOpen(false)
-                }}
+                onClick={handleCartClick}
               >
                 <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {state.itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center font-medium shadow-sm">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center font-medium shadow-sm">
                     {state.itemCount > 99 ? '99+' : state.itemCount}
                   </span>
                 )}
               </button>
               
-              <CartDropdown 
-                isOpen={isCartOpen} 
-                onClose={() => setIsCartOpen(false)} 
-              />
+              {/* Показуємо дропдаун тільки на десктопі */}
+              {typeof window !== 'undefined' && window.innerWidth >= 1024 && (
+                <CartDropdown 
+                  isOpen={isCartOpen} 
+                  onClose={() => setIsCartOpen(false)} 
+                />
+              )}
             </div>
 
             {/* Профіль */}
@@ -154,12 +168,24 @@ export default function Header() {
         </div>
 
         {/* Мобільне меню */}
-        <div className={`lg:hidden mobile-menu fixed inset-0 top-16 bg-white/95 backdrop-blur-lg z-40 transition-all duration-500 ease-in-out ${
+        <div className={`lg:hidden mobile-menu fixed inset-0 bg-white/95 backdrop-blur-lg z-40 transition-all duration-500 ease-in-out ${
           isMenuOpen 
             ? 'opacity-100 translate-x-0' 
             : 'opacity-0 translate-x-full pointer-events-none'
         }`}>
-          <div className="flex flex-col p-6 space-y-6 h-full">
+          {/* Хрестик для закриття */}
+          <div className="absolute top-4 right-4 z-50">
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="p-3 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:scale-110"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex flex-col p-6 space-y-6 h-full pt-20">
             <nav className="flex flex-col space-y-2">
               {[
                 { href: "/", label: "Головна", icon: "🏠" },
