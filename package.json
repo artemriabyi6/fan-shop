@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-     "build": "next build",
+    "build": "next build",
     "postbuild": "prisma generate",
     "migrate": "prisma migrate dev --name init",
     "start": "next start",
@@ -20,10 +20,10 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed",
     "postinstall": "prisma generate"
-    
   },
   "dependencies": {
     "@prisma/client": "6.19.0",
+    "liqpay": "0.0.1",
     "next": "16.0.1",
     "prisma": "6.19.0",
     "react": "19.2.0",

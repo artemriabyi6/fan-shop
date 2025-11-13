@@ -16,7 +16,7 @@ model User {
 }
 
 model Product {
-  id            String   @id @default(uuid())
+  id            String   @id @default(cuid())
   name          String
   price         Float
   originalPrice Float?
@@ -34,24 +34,32 @@ model Product {
 }
 
 model Order {
-  id        String   @id @default(uuid())
-  userId    Int?
-  user      User?    @relation(fields: [userId], references: [id])
-  total     Float
-  status    String   @default("PENDING")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  items     OrderItem[]
+  id                  String      @id @default(cuid())
+  total               Float
+  status              String      @default("PENDING")
+  customerName        String?
+  customerEmail       String?
+  customerPhone       String?
+  shippingAddress     String?
+  shippingCity        String?
+  shippingPostalCode  String?
+  paymentId           String?
+  paymentStatus       String?
+  userId              Int?        // Додаємо зв'язок з User
+  user                User?       @relation(fields: [userId], references: [id])
+  items               OrderItem[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 }
 
 model OrderItem {
-  id          String  @id @default(uuid())
-  orderId     String
-  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product @relation(fields: [productId], references: [id])
-  quantity    Int
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id])
+  quantity     Int
   selectedSize String?
   selectedColor String?
-  price       Float
+  price        Float
 }
