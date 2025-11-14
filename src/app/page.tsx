@@ -43,8 +43,11 @@ export default async function Home() {
             <h1 className="text-6xl md:text-8xl font-light tracking-tight text-gray-900">
               ВІКТОРІЯ
             </h1>
+
+             <div className="flex justify-center mb-8">
+              <div className="w-20 h-1 bg-linear-to-r from-transparent via-gray-400 to-transparent"></div>
+            </div>
             
-            <div className="w-24 h-0.5 bg-linear-to-r from-blue-400 to-purple-400 mx-auto"></div>
 
             <p className="text-xl md:text-2xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
               Фан-шоп <span className="font-medium bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">чемпіонів</span>
